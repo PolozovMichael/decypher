@@ -24,17 +24,21 @@ import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server'
 import { revalidatePath } from 'next/cache'
 
 async function getData(userId: string) {
-  const data = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      name: true,
-      email: true,
-      colorScheme: true,
-    },
-  })
-  return data
+  try {
+    const data = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        name: true,
+        email: true,
+        colorScheme: true,
+      },
+    })
+    return data
+  } catch (error) {
+    console.log(error)
+  }
 }
 
 export default async function page() {

@@ -17,36 +17,44 @@ async function getData({
   lastName: string | undefined | null
   profileImage: string | undefined | null
 }) {
-  const user = await prisma.user.findUnique({
-    where: {
-      id: id,
-    },
-    select: {
-      id: true,
-      stripeCustomerId: true,
-    },
-  })
-  if (!user) {
-    await prisma.user.create({
-      data: {
-        id: id,
-        email: email,
-        name: firstName ?? '' + ' ' + lastName ?? '',
-      },
-    })
-  }
-  if (!user?.stripeCustomerId) {
-    const data = await stripe.customers.create({
-      email: email,
-    })
-    await prisma.user.update({
+  try {
+    const user = await prisma.user.findUnique({
       where: {
         id: id,
       },
-      data: {
-        stripeCustomerId: data.id,
+      select: {
+        id: true,
+        stripeCustomerId: true,
       },
     })
+    if (!user) {
+      await prisma.user.create({
+        data: {
+          id: id,
+          email: email,
+          name: firstName ?? '' + ' ' + lastName ?? '',
+        },
+      })
+    }
+    if (!user?.stripeCustomerId) {
+      try {
+        const data = await stripe.customers.create({
+          email: email,
+        })
+        await prisma.user.update({
+          where: {
+            id: id,
+          },
+          data: {
+            stripeCustomerId: data.id,
+          },
+        })
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  } catch (error) {
+    console.log(error)
   }
 }
 
