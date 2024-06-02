@@ -12,6 +12,7 @@ model User {
   name             String?       @unique
   email            String        @unique
   stripeCustomerId String?       @unique
+  prediction
   colorScheme      String        @default("theme-orange")
 }
 
